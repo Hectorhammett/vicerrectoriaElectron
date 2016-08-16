@@ -8,6 +8,7 @@ import Container from "./Container";
 import Search from "./Search";
 import RegisterStudent from "./RegisterStudent";
 import RegisterProgram from "./RegisterProgram";
+import Programs from "./Programs";
 
 class App extends Component {
   constructor(){
@@ -54,6 +55,7 @@ ReactDOM.render(
       <Route path="search" component={Search}></Route>
       <Route path="registerStudent" component={RegisterStudent}></Route>
       <Route path="registerProgram" component={RegisterProgram}></Route>
+      <Route path="programs" component={Programs}></Route>
     </Route>
   </Router>
 ,document.getElementById("app"));

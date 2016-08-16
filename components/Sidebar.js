@@ -15,7 +15,7 @@ class Sidebar extends Component {
           <li><a className="subheader">Menú Principal</a></li>
           <li><Link className="waves-effect" to="search" onClick={() => {this.handleClick("Búsqueda de Alumnos")}}>Búsqueda de Alumnos</Link></li>
           <li><Link className="waves-effect" to="registerStudent" onClick={() => {this.handleClick("Registro de Alumnos")}}>Registro de Alumnos</Link></li>
-          <li><Link className="waves-effect" to="search" onClick={() => {this.handleClick("Programas Registrados")}}>Programas Registrados</Link></li>
+          <li><Link className="waves-effect" to="programs" onClick={() => {this.handleClick("Programas Registrados")}}>Programas Registrados</Link></li>
           <li><Link className="waves-effect" to="registerProgram" onClick={() => {this.handleClick("Registro de Programa")}}>Registro de Programa</Link></li>
         </ul>
       </div>
