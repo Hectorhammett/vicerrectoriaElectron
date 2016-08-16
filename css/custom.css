@@ -1,0 +1,22 @@
+main{
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  left: 300px;
+  transition: all 0.25s ease;
+}
+
+@media(max-width:992px){
+  main{
+    left:0;
+  }
+}
+
+.nav-wrapper{
+  padding-left:15px;
+}
+
+#title-holder{
+  padding-top: 9px;
+}

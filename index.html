@@ -2,18 +2,36 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <!--Import Google Icon Font-->
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.css"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/custom.css"  media="screen,projection"/>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   </head>
   <body>
-    <h1>Hello World!</h1>
-    <!-- All of the Node.js APIs are available in this renderer process. -->
-    We are using node <script>document.write(process.versions.node)</script>,
-    Chromium <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
+    <div id="app">
+      
+    </div>
+    <!--Import jQuery before materialize.js-->
+    <script type="text/javascript">
+      window.$ = window.jQuery = require('./assets/jquery/jquery.min.js');
+      let hammer = require('hammerjs');
+      const remote = require('electron').remote;
+      const main = remote.require('./main.js');
+    </script>
+    <script type="text/javascript" src="js/materialize.min.js"></script>
+    <script>
+        document.addEventListener("keydown", function (e) {
+          if (e.which === 123) {
+            remote.getCurrentWindow().toggleDevTools();
+          } else if (e.which === 116) {
+            location.reload();
+          }
+        });
+    </script>
+    <script src="js/app.min.js"></script>
   </body>
-
-  <script>
-    // You can also require other files to run in this process
-    require('./renderer.js')
-  </script>
 </html>
