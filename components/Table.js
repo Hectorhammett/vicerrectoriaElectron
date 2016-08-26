@@ -43,14 +43,22 @@ class Table extends Component {
 
   render() {
     return (
-      <table className="striped highlight">
-        <thead>
-          {this.renderHeaders()}
-        </thead>
-        <tbody>
-          {this.renderRows()}
-        </tbody>
-      </table>
+      <div>
+       <div className="row">
+        <div className="col s12">
+           <table className="striped highlight">
+            <thead>
+              {this.renderHeaders()}
+            </thead>
+            <tbody>
+              {this.renderRows()}
+            </tbody>
+          </table>
+        </div>
+       </div>
+       <div className="row">
+       </div>        
+      </div>
     );
   }
 }

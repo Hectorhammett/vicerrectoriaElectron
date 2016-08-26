@@ -41,6 +41,11 @@ class RegisterStudent extends Component {
       else
         Materialize.toast(err,3000,"red");
        $('select').material_select();
+       if(that.state.programs.length > 0){
+         let student = that.state.student;
+         student.programa = that.state.programs[0].doc._id;
+         that.setState({student});
+       }
     })
     $(this.refs.selectProgram).on('change',this.changeStudent.bind(this,'programa'))
   }
@@ -133,37 +138,64 @@ class RegisterStudent extends Component {
       else{
         student._id = student.matricula;
         let that = this;
-        estudiantes.get(student._id).then(function(student){
-          if(student)
-            throw new Error('Esta matrícula ya está en uso. Favor de registrar otra');
-          else estudiantes.put(student);
-        })
-        .then(function(){
-          Materialize.toast("El alumno se ha creado correctamente",3000,'teal');
-          let student = {
-              matricula:"",
-              nombre:"",
-              paterno:"",
-              materno:"",
-              email:"",
-              telefono:"",
-              programa:"",
-              becario:"",
-              campus:"",
-              materias: [],
-              tutor:"",
-              linea:"",
-              tipoTrabajo: "",
-            };
-          that.setState({student});
-          $('label.active').removeClass('active');
-          $('input.valid').removeClass('valid');
-        })
-        .catch(function(err){
-          Materialize.toast(err,3000,'red');
+        estudiantes.get(student._id, function(err, resp) {
+          if (err) {
+            if (err.status = '404') { // if the document does not exist
+                estudiantes.put(student,that.storeStudentInProgram(student));
+            }
+            else {
+              Materialize.toast(err,3000,'red');
+            }
+          }
+          else{
+            if(student)
+              Materialize.toast('Esta matrícula ya está en uso. Favor de registrar otra',3000,'red');
+            else
+              estudiantes.put(student,that.storeStudentInProgram(student));
+          }
         });
       }
     }
+  }
+
+  storeStudentInProgram(createdStudent){
+    let that = this;
+    programas.get(createdStudent.programa).then(function(program){
+      if(program.studentsInProgram == undefined){
+        let studentsInProgram = [];
+        studentsInProgram.push(createdStudent._id);
+      }
+      else{
+        program.studentsInProgram.push(createdStudent._id);
+      }
+      return programas.put(program);
+    })
+    .then(function(){
+      let student = {
+        matricula:"",
+        nombre:"",
+        paterno:"",
+        materno:"",
+        email:"",
+        telefono:"",
+        programa:"",
+        becario:"",
+        campus:"",
+        materias: [],
+        tutor:"",
+        linea:"",
+        tipoTrabajo: "",
+      };
+      student.programa = that.state.programs[0].doc._id;
+      that.setState({student});
+      $('label.active').removeClass('active');
+      $('input.valid').removeClass('valid');
+      Materialize.toast('EL Alumno se ha registrado correctamente.',3000,'teal');
+    })
+    .catch(function(err){
+      Materialize.toast("Hubo un error, favor de reiniciar la aplicación",3000,'red');
+      console.log(err);
+    });
   }
 
   render() {
@@ -218,11 +250,11 @@ class RegisterStudent extends Component {
             {this.renderSubjects()}
             <div className="col s12"><h4>Trabajo de Titulación</h4></div>
             <div className="input-field col m6 s12">
-              <input id="first_name" type="text" className="validate" value={this.state.student.nombreTutor} onChange={this.changeStudent.bind(this,'tutor')}/>
+              <input id="first_name" type="text" className="validate" value={this.state.student.tutor} onChange={this.changeStudent.bind(this,'tutor')}/>
               <label for="first_name">Nombre del tutor</label>
             </div>
             <div className="input-field col m6 s12">
-              <input id="first_name" type="text" className="validate" value={this.state.student.lineo} onChange={this.changeStudent.bind(this,'linea')}/>
+              <input id="first_name" type="text" className="validate" value={this.state.student.linea} onChange={this.changeStudent.bind(this,'linea')}/>
               <label for="first_name">Línea de Generación y Ampliación del Conocimiento</label>
             </div>
             <div className="col s12">
