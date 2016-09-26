@@ -11,7 +11,8 @@ class RegisterProgram extends Component {
         nombre: "",
         tipo:"",
         formato: "",
-        orientacion: ""
+        orientacion: "",
+        studentsInProgram: []
       }
     }
   }
@@ -51,13 +52,15 @@ class RegisterProgram extends Component {
       program._id = new Date().toISOString();
       let that = this;
       programas.put(program, function callback(err, result) {
+        console.log("Salvado",program);
         if (!err) {
           Materialize.toast("El programa se ha registrado correctamente", 3000, 'teal');
           let program = {
             nombre: "",
             tipo:"",
             formato: "",
-            orientacion: ""
+            orientacion: "",
+            studentsInProgram: []
           };
           that.setState({program});
           $('label.active').removeClass('active');

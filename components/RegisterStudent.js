@@ -74,7 +74,7 @@ class RegisterStudent extends Component {
   renderPrograms(){
     if(this.state.programs.length > 0)
       return this.state.programs.map(function(program,index){
-        return <option value={program.doc_id}>{program.doc.nombre}</option>
+        return <option value={program.doc._id}>{program.doc.nombre}</option>
       });
     return <option value="">No hay programas registrados en el sistema</option>
   }
@@ -137,6 +137,7 @@ class RegisterStudent extends Component {
       }
       else{
         student._id = student.matricula;
+        student.programas = [];
         let that = this;
         estudiantes.get(student._id, function(err, resp) {
           if (err) {
@@ -161,14 +162,12 @@ class RegisterStudent extends Component {
   storeStudentInProgram(createdStudent){
     let that = this;
     programas.get(createdStudent.programa).then(function(program){
-      if(program.studentsInProgram == undefined){
-        let studentsInProgram = [];
-        studentsInProgram.push(createdStudent._id);
-      }
-      else{
-        program.studentsInProgram.push(createdStudent._id);
-      }
+      program.studentsInProgram.push(createdStudent);
       return programas.put(program);
+    })
+    .then(function(program){
+      createdStudent.programas.push(program);
+      estudiantes.put(createdStudent);
     })
     .then(function(){
       let student = {
@@ -190,7 +189,7 @@ class RegisterStudent extends Component {
       that.setState({student});
       $('label.active').removeClass('active');
       $('input.valid').removeClass('valid');
-      Materialize.toast('EL Alumno se ha registrado correctamente.',3000,'teal');
+      Materialize.toast('El Alumno se ha registrado correctamente.',3000,'teal');
     })
     .catch(function(err){
       Materialize.toast("Hubo un error, favor de reiniciar la aplicación",3000,'red');
