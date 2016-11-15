@@ -41,6 +41,7 @@
     "react": "^15.3.0",
     "react-dom": "^15.3.0",
     "react-router": "^2.6.1",
+    "sqlite3": "^3.1.8",
     "validatorjs": "^3.3.1",
     "webpack": "^1.13.1"
   }

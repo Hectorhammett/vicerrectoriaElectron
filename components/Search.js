@@ -32,12 +32,16 @@ class Search extends Component {
     });
   }
 
+  redirectToOverview(student){
+    this.props.history.push("overview/" + student._id);
+  }
+
   render() {
     return (
       <div>
         <div className="row">
             <div className="col s12">
-              <Table headers={["Matricula","Nombre del Alumno","Correo Electrónico","Teléfono"]} values={["matricula","nombre","email","telefono"]} rows={this.state.students} loading={this.state.loading}/>
+              <Table onRowClick={this.redirectToOverview.bind(this)} headers={["Matricula","Nombre del Alumno","Correo Electrónico","Teléfono"]} values={["matricula","nombre","email","telefono"]} rows={this.state.students} loading={this.state.loading}/>
             </div>
           </div>
       </div>

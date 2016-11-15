@@ -9,12 +9,14 @@ import Search from "./Search";
 import RegisterStudent from "./RegisterStudent";
 import RegisterProgram from "./RegisterProgram";
 import Programs from "./Programs";
+import Overview from "./Overview";
 
 class App extends Component {
   constructor(){
     super();
     this.state = {
-      title: "Inicial"
+      title: "Inicial",
+      alumno: {}
     }
   }
   
@@ -37,7 +39,7 @@ class App extends Component {
               <a href="#" data-activates="slide-out"  className="button-collapse"><i className="material-icons">menu</i></a>
             </div>
           </nav>
-          <div className="container">
+          <div>
             <section className="content">
               { this.props.children }
             </section>
@@ -56,6 +58,7 @@ ReactDOM.render(
       <Route path="registerStudent" component={RegisterStudent}></Route>
       <Route path="registerProgram" component={RegisterProgram}></Route>
       <Route path="programs" component={Programs}></Route>
+      <Route path="overview/:matricula" component={Overview}></Route>
     </Route>
   </Router>
 ,document.getElementById("app"));

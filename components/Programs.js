@@ -61,9 +61,10 @@ class Programs extends Component {
             <h4>{this.state.selectedProgram.nombre}</h4>
             <ul className="collapsible" data-collapsible="accordion">
               <li>
-                <div className="collapsible-header"><i className="material-icons">filter_drama</i>Información del programa</div>
+                <div className="collapsible-header"><i className="material-icons">info_outline</i>Información del programa</div>
                 <div className="collapsible-body">
                   <p>
+                    <button className="waves-effect waves-light btn teal right"><i className="material-icons left">mode_edit</i>Editar Programa</button>
                     <h5>Nombre del Programa</h5>
                     {this.state.selectedProgram.nombre}
                     <h5>Tipo de programa</h5>
@@ -76,7 +77,7 @@ class Programs extends Component {
                 </div>
               </li>
               <li>
-                <div className="collapsible-header"><i className="material-icons">place</i>Alumnos en el programa</div>
+                <div className="collapsible-header"><i className="material-icons">account_circle</i>Alumnos en el programa</div>
                 <div className="collapsible-body">
                   <p>
                     <Table headers={["Matricula","Nombre del Alumno","Correo Electrónico","Teléfono"]} rows={(this.state.selectedProgram.studentsInProgram != undefined) ? this.state.selectedProgram.studentsInProgram : []} values={["matricula","nombre","email","telefono"]} />
@@ -84,8 +85,12 @@ class Programs extends Component {
                 </div>
               </li>
               <li>
-                <div className="collapsible-header"><i className="material-icons">whatshot</i>Eliminar programa</div>
-                <div className="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
+                <div className="collapsible-header"><i className="material-icons">delete</i>Eliminar programa</div>
+                <div className="collapsible-body">
+                  <p>
+                    <button className="waves-effect waves-light btn red"><i className="material-icons left">delete_forever</i>button</button>
+                  </p>
+                </div>
               </li>
             </ul>
           </div>

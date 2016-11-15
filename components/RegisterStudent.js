@@ -18,12 +18,15 @@ class RegisterStudent extends Component {
         email:"",
         telefono:"",
         programa:"",
+        programas:[],
         becario:"",
         campus:"",
         materias: [],
+        semestres: [],
         tutor:"",
         linea:"",
         tipoTrabajo: "",
+        nombreTrabajo:""
       },
       programs: []
     }
@@ -43,7 +46,7 @@ class RegisterStudent extends Component {
        $('select').material_select();
        if(that.state.programs.length > 0){
          let student = that.state.student;
-         student.programa = that.state.programs[0].doc._id;
+         student.programa = 0;
          that.setState({student});
        }
     })
@@ -74,7 +77,7 @@ class RegisterStudent extends Component {
   renderPrograms(){
     if(this.state.programs.length > 0)
       return this.state.programs.map(function(program,index){
-        return <option value={program.doc._id}>{program.doc.nombre}</option>
+        return <option value={index}>{program.doc.nombre}</option>
       });
     return <option value="">No hay programas registrados en el sistema</option>
   }
@@ -96,7 +99,6 @@ class RegisterStudent extends Component {
   saveStudent(){
     console.log("saving");
     let student = this.state.student;
-    console.log(student);
     let rules = {
       matricula:"required",
       nombre:"required",
@@ -109,6 +111,7 @@ class RegisterStudent extends Component {
       tutor:"required",
       linea:"required",
       tipoTrabajo: "required",
+      nombreTrabajo: "required"
     }
     let validation = new Validator(student,rules);
     validation.setAttributeNames({
@@ -123,6 +126,7 @@ class RegisterStudent extends Component {
       tutor:"Nombre del Tutor",
       linea:"Línea de generación y Ampliación del Conocimiento",
       tipoTrabajo: "Tipo de trabajo",
+      nombreTrabajo: "Nombre del Trabajo"
     });
     let errorString = "";
     if(validation.fails()){
@@ -137,12 +141,13 @@ class RegisterStudent extends Component {
       }
       else{
         student._id = student.matricula;
+        student.semestres.push(student.materias);
         student.programas = [];
         let that = this;
         estudiantes.get(student._id, function(err, resp) {
           if (err) {
             if (err.status = '404') { // if the document does not exist
-                estudiantes.put(student,that.storeStudentInProgram(student));
+              that.storeStudentInProgram(student);
             }
             else {
               Materialize.toast(err,3000,'red');
@@ -159,18 +164,17 @@ class RegisterStudent extends Component {
     }
   }
 
-  storeStudentInProgram(createdStudent){
+  storeStudentInProgram(student){
+    let program = this.state.programs[this.state.student.programa].doc;
     let that = this;
-    programas.get(createdStudent.programa).then(function(program){
-      program.studentsInProgram.push(createdStudent);
-      return programas.put(program);
-    })
-    .then(function(program){
-      createdStudent.programas.push(program);
-      estudiantes.put(createdStudent);
-    })
-    .then(function(){
-      let student = {
+    program.studentsInProgram.push(student);
+    student.programas.push(program._id);
+    Promise.all([
+      estudiantes.put(student),
+      programas.put(program)
+    ])
+    .then(function(results){
+       let student = {
         matricula:"",
         nombre:"",
         paterno:"",
@@ -184,8 +188,10 @@ class RegisterStudent extends Component {
         tutor:"",
         linea:"",
         tipoTrabajo: "",
+        nombreTrabajo:"",
+        programas:[],
+        semestres:[]
       };
-      student.programa = that.state.programs[0].doc._id;
       that.setState({student});
       $('label.active').removeClass('active');
       $('input.valid').removeClass('valid');
@@ -248,6 +254,10 @@ class RegisterStudent extends Component {
             </div>
             {this.renderSubjects()}
             <div className="col s12"><h4>Trabajo de Titulación</h4></div>
+            <div className="input-field col s12">
+              <input id="first_name" type="text" className="validate" value={this.state.student.nombreTrabajo} onChange={this.changeStudent.bind(this,'nombreTrabajo')}/>
+              <label for="first_name">Nombre del trabajo</label>
+            </div>
             <div className="input-field col m6 s12">
               <input id="first_name" type="text" className="validate" value={this.state.student.tutor} onChange={this.changeStudent.bind(this,'tutor')}/>
               <label for="first_name">Nombre del tutor</label>

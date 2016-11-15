@@ -9,7 +9,7 @@ class Sidebar extends Component {
   render() {
     return (
       <div>
-        <ul id="slide-out" className="side-nav fixed ">
+        <ul id="slide-out" className="side-nav fixed " style={{zIndex: "0"}}>
           <li className="center-align" id="title-holder">SSTEP</li>
           <li><div className="divider"></div></li>
           <li><a className="subheader">Menú Principal</a></li>

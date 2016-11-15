@@ -5,8 +5,8 @@ class Materia extends Component {
     return (
       <div>
         <div className="col s12 m6">
-          <div className="card blue-grey darken-1">
-            <div className="card-content white-text">
+          <div className="card white">
+            <div className="card-content">
               <span className="card-title">Materia</span>
               <div>
                 <input placeholder="Nombre de la materia" value={this.props.subjectName} type="text" onChange={this.props.updateSubjectName.bind(this,this.props.identifier)}/>
