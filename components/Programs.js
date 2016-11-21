@@ -103,6 +103,12 @@ class Programs extends Component {
     alert("AA");
   }
 
+  editProgram(){
+    let {selectedProgram} = this.state;
+    $('#modal-program').modal('close');
+    this.props.history.push("editProgram/" + selectedProgram._id);
+  }
+
   render() {
     return (
       <div className="row">
@@ -138,7 +144,7 @@ class Programs extends Component {
                 <div className="collapsible-header"><i className="material-icons">settings</i>Opciones</div>
                 <div className="collapsible-body">
                   <p>
-                    <button className="waves-effect waves-light btn"><i className="material-icons left">edit</i>Editar Programa</button>
+                    <button className="waves-effect waves-light btn" onClick={this.editProgram.bind(this)}><i className="material-icons left">edit</i>Editar Programa</button>
                     <button className="waves-effect waves-light btn red" onClick={this.deleteProgram.bind(this)}><i className="material-icons left">delete_forever</i>Eliminar Programa</button>
                   </p>
                 </div>

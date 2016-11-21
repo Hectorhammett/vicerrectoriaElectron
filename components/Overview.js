@@ -833,6 +833,11 @@ class Overview extends Component {
         }
     }
 
+    editStudent(){
+        let {alumno} = this.state;
+        this.props.history.push("editStudent/" + alumno._id);
+    }
+
     render() {
         const {addProgram,editProductivity,productivity,movility,editMovility,noteToEdit,editNote,addProductivity,addSemester,editSemester,subjects,alumnoEnPrograma,editJob,addNote,addMovility} = this.state;
         console.log(this.state);
@@ -852,6 +857,7 @@ class Overview extends Component {
                 <div className="row">
                     <div className="col s12">
                         <button className="waves-effect waves-light btn" onClick={this.showModal.bind(this,'addProgram')}><i className="material-icons right">add</i>Agregar alumno a programa</button>
+                        <button className="waves-effect waves-light btn" onClick={this.editStudent.bind(this)}><i className="material-icons right">edit</i>Editar Alumno</button>
                     </div>
                 </div>
                 {this.renderProgramsGrid()}

@@ -10,6 +10,8 @@ import RegisterStudent from "./RegisterStudent";
 import RegisterProgram from "./RegisterProgram";
 import Programs from "./Programs";
 import Overview from "./Overview";
+import EditProgram from "./EditProgram";
+import EditStudent from "./EditStudent";
 
 class App extends Component {
   constructor(){
@@ -59,6 +61,8 @@ ReactDOM.render(
       <Route path="registerProgram" component={RegisterProgram}></Route>
       <Route path="programs" component={Programs}></Route>
       <Route path="overview/:matricula" component={Overview}></Route>
+      <Route path="editProgram/:id" component={EditProgram}></Route>
+      <Route path="editStudent/:matricula" component={EditStudent}></Route>
     </Route>
   </Router>
 ,document.getElementById("app"));
