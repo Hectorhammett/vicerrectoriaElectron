@@ -3,8 +3,10 @@ import Table from "./Table";
 let PouchDB = require("pouchdb");
 let programas = new PouchDB("programas");
 let estudiantes = new PouchDB("estudiantes");
+
 window.estudiantes = estudiantes;
 window.programas = programas;
+
 window.getTest = function(){
   programas.allDocs({
     include_docs: true,
@@ -32,13 +34,14 @@ class Programs extends Component {
   clickProgram(program){
     let selectedProgram = program;
     this.setState({selectedProgram});
-    $('#modal-program').openModal();
+    $('#modal-program').modal('open');
   }
 
   componentDidMount() {
     $('.collapsible').collapsible({
       accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
     });
+    $(this.refs.modalProgram).modal();
     let loading = true;
     this.setState({loading});
     let that = this;
@@ -49,14 +52,61 @@ class Programs extends Component {
         programs.push(document.doc);
       })
       that.setState({loading,programs});
-      console.log(that.state);
     })
   }
   
+  clickedStudent(student){
+    $('#modal-program').modal('close');
+    this.props.history.push("overview/" + student._id);
+  }
+
+  deleteProgram(){
+    let {selectedProgram} = this.state;
+    let response = confirm("¿Desea borrar el programa?");
+    if(response === true){
+      let students = [];
+      let promises = [];
+      selectedProgram.studentsInProgram.map(function(student){
+        let promise = estudiantes.get(student._id);
+        promises.push(promise);
+      })
+      Promise.all(promises).then(function(results){
+        results.map(function(student){
+          let indexOfProgram = student.programas.indexOf(selectedProgram._id);
+          if(indexOfProgram > -1)
+            student.programas.splice(indexOfProgram,1);
+        })
+        return estudiantes.bulkDocs(results);
+      })
+      .then(function(){
+        return programas.remove(selectedProgram);
+      })
+      .then(function(){
+        return programas.allDocs({include_docs: true, descending: true})
+      })
+      .then(function(docs){
+        $('#modal-program').modal('close');
+        let programs = [];
+        docs.rows.map(function(document){
+          programs.push(document.doc);
+        })
+        this.setState({programs});
+      }.bind(this))
+      .catch(function(err){
+        alert("Error");
+        console.log(err);
+      })
+    }  
+  }
+
+  addStudent(){
+    alert("AA");
+  }
+
   render() {
     return (
       <div className="row">
-        <div id="modal-program" className="modal">
+        <div id="modal-program" className="modal" ref="modalProgram">
           <div className="modal-content">
             <h4>{this.state.selectedProgram.nombre}</h4>
             <ul className="collapsible" data-collapsible="accordion">
@@ -80,15 +130,16 @@ class Programs extends Component {
                 <div className="collapsible-header"><i className="material-icons">account_circle</i>Alumnos en el programa</div>
                 <div className="collapsible-body">
                   <p>
-                    <Table headers={["Matricula","Nombre del Alumno","Correo Electrónico","Teléfono"]} rows={(this.state.selectedProgram.studentsInProgram != undefined) ? this.state.selectedProgram.studentsInProgram : []} values={["matricula","nombre","email","telefono"]} />
+                    <Table onRowClick={this.clickedStudent.bind(this)} headers={["Matricula","Nombre del Alumno","Correo Electrónico","Teléfono"]} rows={(this.state.selectedProgram.studentsInProgram != undefined) ? this.state.selectedProgram.studentsInProgram : []} values={["matricula","nombre","email","telefono"]} />
                   </p>
                 </div>
               </li>
               <li>
-                <div className="collapsible-header"><i className="material-icons">delete</i>Eliminar programa</div>
+                <div className="collapsible-header"><i className="material-icons">settings</i>Opciones</div>
                 <div className="collapsible-body">
                   <p>
-                    <button className="waves-effect waves-light btn red"><i className="material-icons left">delete_forever</i>button</button>
+                    <button className="waves-effect waves-light btn"><i className="material-icons left">edit</i>Editar Programa</button>
+                    <button className="waves-effect waves-light btn red" onClick={this.deleteProgram.bind(this)}><i className="material-icons left">delete_forever</i>Eliminar Programa</button>
                   </p>
                 </div>
               </li>

@@ -28,7 +28,6 @@ class EditJob extends Component {
             $(this.refs.jobModal).modal('open');
         }
         if(nextProps.alumno != null){
-            console.log(nextProps);
             let {trabajo} = this.state;
             let {nombreTrabajo,tipoTrabajo,tutor,linea} = nextProps.alumno;
             let newTrabajo = {

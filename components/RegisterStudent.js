@@ -165,6 +165,7 @@ class RegisterStudent extends Component {
   }
 
   storeStudentInProgram(student){
+    let {programs} = this.state;
     let program = this.state.programs[this.state.student.programa].doc;
     let that = this;
     program.studentsInProgram.push(student);
@@ -174,14 +175,16 @@ class RegisterStudent extends Component {
       programas.put(program)
     ])
     .then(function(results){
-       let student = {
+      program._rev = results[1].rev
+      // programs[that.state.student.programa] = program;
+      let student = {
         matricula:"",
         nombre:"",
         paterno:"",
         materno:"",
         email:"",
         telefono:"",
-        programa:"",
+        programa:"0",
         becario:"",
         campus:"",
         materias: [],
@@ -204,6 +207,7 @@ class RegisterStudent extends Component {
   }
 
   render() {
+    console.log(this.state);
     return (
       <div>
         <div className="row">
