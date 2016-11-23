@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 let _ = require("lodash");
+let Validator = require("validatorjs");
 
 class EditJob extends Component {
     constructor(){
@@ -35,7 +36,7 @@ class EditJob extends Component {
             }
             if(!_.isEqual(trabajo,newTrabajo)){
                 trabajo = newTrabajo;
-                this.setState({trabajo});
+                this.setState({trabajo},function(){ $('input').change() });
             }
         }
     }
@@ -48,6 +49,32 @@ class EditJob extends Component {
 
     returnJob(){
         let {trabajo} = this.state;
+        let rules = {
+            nombreTrabajo: "required",
+            tipoTrabajo: "required",
+            tutor: "required",
+            linea: "required"
+        }
+
+        let validator = new Validator(trabajo,rules);
+
+        validator.setAttributeNames({
+            nombreTrabajo: "Nombre del Trabajo",
+            tipoTrabajo: "Tipo del Trabajo",
+            tutor: "Nombre del Tutor",
+            linea: "Línea de Generación y Ampliación del Conocimiento"
+        });
+
+        if(validator.fails()){
+            let errors = validator.errors.all();
+            let errorString = "";
+            for( var x in errors){
+                errorString += errors[x][0] + "<br/>";
+            }
+            Materialize.toast(errorString,3000,"red");
+            return;
+        }
+
         this.props.returnJob(trabajo);
          trabajo =  {
             nombreTrabajo: "",
@@ -95,7 +122,7 @@ class EditJob extends Component {
                     </div>
                 </div>
                 <div className="modal-footer">
-                    <button className="modal-action modal-close waves-effect waves-green btn-flat" onClick={this.returnJob.bind(this)}>Guardar</button>
+                    <button className="modal-action waves-effect waves-green btn-flat" onClick={this.returnJob.bind(this)}>Guardar</button>
                     <button className=" modal-action modal-close waves-effect waves-green btn-flat">Cancelar</button>
                 </div>
             </div>

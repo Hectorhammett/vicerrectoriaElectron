@@ -1,30 +1,42 @@
 import React, {Component} from 'react';
+let _ = require("lodash");
 
 class Table extends Component {
-  constructor(props){
-    super(props);
-    let loading = true;
-    if(this.props.loading != undefined)
-      loading = this.props.loading;
+  constructor(){
+    super();
     this.state ={
       results: 10,
       page: 1,
       filtered: [],
-      loading: loading,
+      loading: true,
       rows:[],
       widths:[],
       orderBy: "",
+      serverSide: false,
+      total: 0,
       orderState: 0 //0 = not sorting, 1 = ASC, 2 = DESC
     };
   }
   
   componentDidMount() {
-    this.createURLRequest();
+    if(this.props.serverSide === true){
+      let serverSide = this.props.serverSide;
+      this.setState({serverSide});
+    }
+    if(this.props.request === false){
+      let loading = false;
+      this.setState({loading});
+    }
+    else{
+      this.createURLRequest();
+    }
   }
 
   componentWillReceiveProps(nextProps) {
     if(nextProps.request){
-      this.createURLRequest();
+      this.setState({page:1},function(){
+        this.createURLRequest();
+      })
     }
     if(this.props.url == undefined){
       let rows = [];
@@ -35,20 +47,32 @@ class Table extends Component {
         filtered = nextProps.rows.slice(0);
         loading = false;
       }
-      this.setState({rows,filtered,loading},this.getWidthForColumns);
-    }
-    if(nextProps.loading != undefined){
-      let loading = nextProps.loading.loading;
-      this.setState({loading});
+      let total = rows.length;
+      this.setState({rows,filtered,loading,total},this.getWidthForColumns);
     }
   }
   
   createURLRequest(){
     if(this.props.url != undefined){
       let that = this;
+      let {parameters} = this.props;
+      if(this.props.serverSide === true){
+        parameters.rows = this.state.results;
+        parameters.offset = (this.state.results * this.state.page) - this.state.results;
+      }
+      this.setState({loading:true});
       $.get(this.props.url,this.props.parameters,function(rows){
-        let filtered = rows.slice(0);
-        that.setState({rows,filtered},that.getWidthForColumns.bind(that));
+        let filtered = [];
+        let total = 0;
+        if(that.props.serverSide === true){
+          filtered = rows.data.slice(0);
+          total = rows.total;
+        }
+        else{
+          filtered = rows.slice(0);
+          total = filtered.length;
+        }
+        that.setState({rows,filtered,total},that.getWidthForColumns.bind(that));
       })
       .fail(function(response){
         Materialize.toast(response.responseText,3000,'red');
@@ -56,18 +80,36 @@ class Table extends Component {
       .always(function(){
         let loading =false;
         that.setState({loading});
+        that.props.finished();
       });
+    }
+    else{
+      let rows = [];
+      let filtered = [];
+      let loading = true;
+      if(this.props.rows != undefined){
+        rows = this.props.rows;
+        filtered = this.props.rows.slice(0);
+        loading = false;
+      }
+      this.setState({rows,filtered,loading},this.getWidthForColumns);
     }
   }
 
   getWidthForColumns(){
-    if(this.props.values != undefined && this.state.rows.length > 0){
+    if(this.props.values != undefined && this.state.rows.length > 0 && this.state.widths.length == 0){
       let rows = this.state.rows.slice(0);
       let widths = {};
       let that = this;
       for(var x in this.props.values){
         rows.sort(function(a,b){
-          return b[that.props.values[x]].length - a[that.props.values[x]].length;
+          try{
+            return b[that.props.values[x]].length - a[that.props.values[x]].length;
+          }
+          catch(e){
+            // alert("Error!");
+            console.log("a",a,"b",b,"Value",that.props.values[x]);
+          }
         })
         widths[this.props.values[x]] = rows[0][that.props.values[x]];
       }
@@ -103,7 +145,7 @@ class Table extends Component {
   }
 
   renderRows(){
-    if(this.state.loading){
+    if(this.state.loading || this.props.loading){
       return (
         <tr><td colSpan={this.props.headers.length}>
           <div className="progress">
@@ -112,10 +154,15 @@ class Table extends Component {
         </td></tr>
       )
     }
+    let that = this;
+    if(this.props.serverSide === true){
+      return this.state.filtered.map(function(row){
+        return <tr onClick={(that.props.onRowClick != undefined) ? that.props.onRowClick.bind(this,row) : null}>{that.renderCells(row)}</tr>
+      });
+    }
     if(this.state.filtered.length == 0){
       return <tr><td colSpan={this.props.values.length} style={{textAlign: "center"}}> No results found </td></tr>
     }
-    let that = this;
     let begin = (this.state.results * this.state.page) - this.state.results;
     return this.state.filtered.slice(begin, parseInt(begin) + parseInt(this.state.results)).map(function(row){
       return <tr onClick={(that.props.onRowClick != undefined) ? that.props.onRowClick.bind(this,row) : null}>{that.renderCells(row)}</tr>
@@ -136,27 +183,84 @@ class Table extends Component {
   }
 
   renderPagination(){
-    let pages = Math.ceil(this.state.filtered.length / this.state.results);
-    let pills = [];
-    for(let i = 1; i <= pages; i++){
-      pills.push(<li className={(this.state.page == i)? "active" : null} onClick={this.changePage.bind(this,i)}><a href="#">{i}</a></li>);
+    let pages = Math.ceil(this.state.total / this.state.results);
+    if(pages > 0){
+      let pills = [];
+      let start = 1;
+      if( this.state.page - 2 > 0)
+        start = this.state.page - 2;
+      let limit = (start + 4 > pages) ? pages : start + 4;
+      if(limit - start < 5 && pages >= 5)
+        start = limit - 4 ;
+      for(let i = start; i <= limit; i++){
+        pills.push(<li className={(this.state.page == i)? "active" : null} onClick={this.changePage.bind(this,i)}><a href="#">{i}</a></li>);
+      }
+      return pills.map(function(li){
+        return li
+      });
     }
-    return pills.map(function(li){
-      return li
+  }
+
+  changePage(i,e){
+    e.preventDefault();
+    let that = this;
+    let page = i;
+    this.setState({page},function(){
+      if(this.props.serverSide === true)
+        that.createURLRequest();
     });
+  }
+
+  renderExtraFilters(){
+    if(this.props.columnFilters != undefined){
+      let plucked = _.map(this.state.rows,this.props.columnFilters[0]);
+      let options = _.uniq(plucked);
+      return(
+         <div className="col l2 m4 s12 right">
+            <label>{this.props.columnFilters[0]}</label>
+            <select className="browser-default" onChange={this.columnFilter.bind(this,this.props.columnFilters[0])}>
+              <option value="">No Filter</option>
+              {
+                options.map(function(option,index){
+                  return <option value={option}>{option}</option>
+                })
+              }
+            </select>
+          </div>
+      )
+    }
+  }
+  
+  columnFilter(column,e){
+    let filter = e.target.value;
+    if(filter != ""){
+      let filtered = this.state.rows.filter(function(row){
+        if(row[column].match(new RegExp(filter,"i")))
+          return row;
+      })
+      this.setState({filtered});
+    }
+    else{
+      let filtered = this.state.rows.slice(0);
+      this.setState({filtered});
+    }
   }
 
   renderTotal(){
     return(
       <span>
-        {this.state.filtered.length} Results
+        {this.state.total} Results
       </span>
     )
   }
 
   changeResultsPerPage(e){
     let results = e.target.value;
-    this.setState({results});
+    let that = this;
+    this.setState({results},function(){
+      if(that.props.serverSide === true)
+        that.createURLRequest();
+    });
   }
 
   changeFilter(e){
@@ -164,11 +268,13 @@ class Table extends Component {
     let page = 1;
     if(filter != ""){
       let filtered = this.state.rows.filter(this.applyFilter.bind(this,filter));
-      this.setState({filtered});
+      let total = filtered.length;
+      this.setState({filtered,total});
     }
     else{
       let filtered = this.state.rows;
-      this.setState({filtered});
+      let total = filtered.length;
+      this.setState({filtered,total});
     }
   }
 
@@ -181,9 +287,8 @@ class Table extends Component {
     }
     else{
       for(var prop in row){
-        if(typeof row[prop].match == 'function')
-          if(row[prop].match(new RegExp(filter,"i")))
-            return row;
+        if(row[prop].match(new RegExp(filter,"i")))
+          return row;
       }
     }
   }
@@ -215,17 +320,14 @@ class Table extends Component {
     return x-y;
   }
 
-  changePage(i,e){
-    e.preventDefault();
-    let page = i;
-    this.setState({page});
-  }
-
   upPage(e){
     e.preventDefault();
-    if(this.state.page < Math.ceil(this.props.rows.length/this.state.results)){
+    if(this.state.page < Math.ceil(this.state.total/this.state.results)){
       let page = this.state.page + 1;
-      this.setState({page});
+      this.setState({page},function(){
+        if(this.props.serverSide === true)
+          this.createURLRequest();
+      });
     }
   }
 
@@ -233,11 +335,27 @@ class Table extends Component {
     e.preventDefault();
     if(this.state.page != 1){
       let page = this.state.page - 1;
-      this.setState({page});
+      this.setState({page},function(){
+        if(this.props.serverSide === true)
+          this.createURLRequest();
+      });
+    }
+  }
+
+  renderSearch(){
+    if(this.props.serverSide !== true){
+      return(
+        <div className="input-field right col l3 m4 s12">
+          <input id="last_name" type="text" onChange={this.changeFilter.bind(this)}/>
+          <label htmlFor="last_name">Search</label>
+        </div>
+      )
     }
   }
 
   render() {
+    if(this.props.debug)
+      console.log("State", this.state, "Props", this.props);
     return (
       <div className="row">
         <div className="col s12">
@@ -252,12 +370,10 @@ class Table extends Component {
                 <option value="100">100</option>
               </select>
             </div>
-            <div className="input-field right col l3 m4 s12">
-              <input id="last_name" type="text" onChange={this.changeFilter.bind(this)}/>
-              <label htmlFor="last_name">Search</label>
-            </div>
+            {this.renderSearch()}
+            {this.renderExtraFilters()}
           </div>
-          <div className="row">
+          <div className="row" style={{height: this.props.height, overflow: "auto"}}>
             <table className={this.props.className} ref="dataTable">
               <tbody>
                 {this.renderHeaders()}

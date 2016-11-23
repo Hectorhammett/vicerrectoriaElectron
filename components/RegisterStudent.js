@@ -214,27 +214,27 @@ class RegisterStudent extends Component {
           <form className="col s12">
             <div className="col s12"><h4>Datos personales del Alumno</h4></div>
             <div className="input-field col s12">
-              <input id="first_name" type="text" className="validate" value={this.state.student.matricula} onChange={this.changeStudent.bind(this,'matricula')}/>
+              <input id="first_name" type="text" className="" value={this.state.student.matricula} onChange={this.changeStudent.bind(this,'matricula')}/>
               <label for="first_name">Matricula</label>
             </div>
             <div className="input-field col s12">
-              <input id="first_name" type="text" className="validate" value={this.state.student.nombre} onChange={this.changeStudent.bind(this,'nombre')}/>
+              <input id="first_name" type="text" className="" value={this.state.student.nombre} onChange={this.changeStudent.bind(this,'nombre')}/>
               <label for="first_name">Nombre(s)</label>
             </div>
             <div className="input-field col m6 s12">
-              <input id="first_name" type="text" className="validate" value={this.state.student.paterno} onChange={this.changeStudent.bind(this,'paterno')}/>
+              <input id="first_name" type="text" className="" value={this.state.student.paterno} onChange={this.changeStudent.bind(this,'paterno')}/>
               <label for="first_name">Apellido Paterno</label>
             </div>
             <div className="input-field col m6 s12">
-              <input id="first_name" type="text" className="validate" value={this.state.student.materno} onChange={this.changeStudent.bind(this,'materno')}/>
+              <input id="first_name" type="text" className="" value={this.state.student.materno} onChange={this.changeStudent.bind(this,'materno')}/>
               <label for="first_name">Apellido Materno</label>
             </div>
             <div className="input-field col m6 s12">
-              <input id="first_name" type="text" className="validate" value={this.state.student.email} onChange={this.changeStudent.bind(this,'email')}/>
+              <input id="first_name" type="text" className="" value={this.state.student.email} onChange={this.changeStudent.bind(this,'email')}/>
               <label for="first_name">Correo Electrónico</label>
             </div>
             <div className="input-field col m6 s12">
-              <input id="first_name" type="text" className="validate" value={this.state.student.telefono} onChange={this.changeStudent.bind(this,'telefono')}/>
+              <input id="first_name" type="text" className="" value={this.state.student.telefono} onChange={this.changeStudent.bind(this,'telefono')}/>
               <label for="first_name">Teléfono</label>
             </div>
             <div className="col s12"><h4>Programa</h4></div>
@@ -245,11 +245,11 @@ class RegisterStudent extends Component {
               <label>Seleccionar Programa</label>
             </div>
             <div className="input-field col m6 s12">
-              <input id="first_name" type="text" className="validate" value={this.state.student.becario} onChange={this.changeStudent.bind(this,'becario')}/>
+              <input id="first_name" type="text" className="" value={this.state.student.becario} onChange={this.changeStudent.bind(this,'becario')}/>
               <label for="first_name">Numero de becario(Opcional)</label>
             </div>
             <div className="input-field col m6 s12">
-              <input id="first_name" type="text" className="validate" value={this.state.student.campus} onChange={this.changeStudent.bind(this,'campus')}/>
+              <input id="first_name" type="text" className="" value={this.state.student.campus} onChange={this.changeStudent.bind(this,'campus')}/>
               <label for="first_name">Campus</label>
             </div>
             <div className="col s12"><h4>Carga Académica</h4></div>
@@ -259,15 +259,15 @@ class RegisterStudent extends Component {
             {this.renderSubjects()}
             <div className="col s12"><h4>Trabajo de Titulación</h4></div>
             <div className="input-field col s12">
-              <input id="first_name" type="text" className="validate" value={this.state.student.nombreTrabajo} onChange={this.changeStudent.bind(this,'nombreTrabajo')}/>
+              <input id="first_name" type="text" className="" value={this.state.student.nombreTrabajo} onChange={this.changeStudent.bind(this,'nombreTrabajo')}/>
               <label for="first_name">Nombre del trabajo</label>
             </div>
             <div className="input-field col m6 s12">
-              <input id="first_name" type="text" className="validate" value={this.state.student.tutor} onChange={this.changeStudent.bind(this,'tutor')}/>
+              <input id="first_name" type="text" className="" value={this.state.student.tutor} onChange={this.changeStudent.bind(this,'tutor')}/>
               <label for="first_name">Nombre del tutor</label>
             </div>
             <div className="input-field col m6 s12">
-              <input id="first_name" type="text" className="validate" value={this.state.student.linea} onChange={this.changeStudent.bind(this,'linea')}/>
+              <input id="first_name" type="text" className="" value={this.state.student.linea} onChange={this.changeStudent.bind(this,'linea')}/>
               <label for="first_name">Línea de Generación y Ampliación del Conocimiento</label>
             </div>
             <div className="col s12">

@@ -132,7 +132,7 @@ class EditSemester extends Component {
                     </div>
                 </div>
                 <div className="modal-footer">
-                    <button className="modal-action modal-close waves-effect waves-green btn-flat" onClick={this.returnSubjects.bind(this)}>Guardar</button>
+                    <button className="modal-action waves-effect waves-green btn-flat" onClick={this.returnSubjects.bind(this)}>Guardar</button>
                     <button className=" modal-action modal-close waves-effect waves-green btn-flat" onClick={() => { $(this.refs.semesterModal).modal('close') }}>Cancelar</button>
                 </div>
             </div>

@@ -31,9 +31,14 @@ class AddNote extends Component {
 
     returnNote(){
         let {newNote} = this.state;
+        if(newNote === ""){
+            Materialize.toast("La nota no puede estar vacía.",3000,"red");
+            return
+        }
         this.props.returnNote(newNote);
         newNote = "";
         this.setState({newNote});
+        $(this.refs.noteModal).modal('close');
     }
 
     render() {
@@ -50,7 +55,7 @@ class AddNote extends Component {
                     </div>
                 </div>
                 <div className="modal-footer">
-                    <button className="modal-action modal-close waves-effect waves-green btn-flat" onClick={this.returnNote.bind(this)}>Guardar</button>
+                    <button className="modal-action waves-effect waves-green btn-flat" onClick={this.returnNote.bind(this)}>Guardar</button>
                     <button className=" modal-action modal-close waves-effect waves-green btn-flat">Cancelar</button>
                 </div>
             </div>

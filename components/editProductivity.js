@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 let _ = require("lodash");
+let Validator = require('validatorjs');
 
 const ORIGINAL_STATE = {
     nombre: "",
@@ -15,11 +16,31 @@ class EditProductivity extends Component {
     }
 
     componentDidMount() {
+        jQuery.extend( jQuery.fn.pickadate.defaults, {
+            monthsFull: [ 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre' ],
+            monthsShort: [ 'ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic' ],
+            weekdaysFull: [ 'domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado' ],
+            weekdaysShort: [ 'dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb' ],
+            today: 'hoy',
+            clear: 'borrar',
+            close: 'cerrar'
+        });
+        let that = this;
          $(this.refs.productivityModal).modal({
             complete: function() { 
                 let state = ORIGINAL_STATE;
                 this.setState(state);
              }.bind(this)
+        });
+        $('.dateos').pickadate({
+            selectMonths: true, // Creates a dropdown to control month
+            selectYears: 15, // Creates a dropdown of 15 years to control year
+            onSet: function(){
+                let state = that.state;
+                state[this.get('id')] = this.get();
+                that.setState(state);
+                this.close();
+            }
         });
     }
 
@@ -41,6 +62,31 @@ class EditProductivity extends Component {
 
     updateProductivity(){
         let productivity = this.state;
+        let rules = {
+            nombre: "required",
+            fecha: "required",
+            categoria: "required",
+            tipo: "required"
+        }
+
+        let validator = new Validator(productivity,rules);
+
+        validator.setAttributeNames({
+            nombre: "Nombre",
+            fecha: "Fecha",
+            categoria: "Categoría",
+            tipo: "Tipo"
+        });
+
+        if(validator.fails()){
+            let errors = validator.errors.all();
+            let errorString = "";
+            for( var x in errors ){
+                errorString += errors[x][0] + "<br/>";
+            }
+            Materialize.toast(errorString,3000,"red");
+            return;
+        }
         this.props.updateProductivity(productivity);
         this.setState(ORIGINAL_STATE);
     }
@@ -57,7 +103,7 @@ class EditProductivity extends Component {
                             <label htmlFor="nombreas">Nombre</label>
                         </div>
                         <div className="input-field col s12">
-                            <input id="inicioas" type="text" value={fecha} onChange={this.updateField.bind(this,'fecha')}/>
+                            <input id="inicioas" className="dateos" id="fecha" type="text" value={fecha} onChange={this.updateField.bind(this,'fecha')}/>
                             <label htmlFor="inicioas">Fecha</label>
                         </div>
                         <div className="input-field col s12">
@@ -71,7 +117,7 @@ class EditProductivity extends Component {
                     </div>
                 </div>
                 <div className="modal-footer">
-                    <button className="modal-action modal-close waves-effect waves-green btn-flat" onClick={this.updateProductivity.bind(this)}>Guardar</button>
+                    <button className="modal-action waves-effect waves-green btn-flat" onClick={this.updateProductivity.bind(this)}>Guardar</button>
                     <button className=" modal-action modal-close waves-effect waves-green btn-flat">Cancelar</button>
                 </div>
             </div>

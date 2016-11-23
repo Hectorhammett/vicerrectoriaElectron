@@ -3,6 +3,10 @@ let PouchDB = require("pouchdb");
 let programas = new PouchDB("programas");
 let Validator = require("validatorjs");
 
+const HACKY_FIX = {
+  overflowX: "hidden"
+}
+
 class EditProgram extends Component {
   constructor(){
     super();
@@ -19,7 +23,7 @@ class EditProgram extends Component {
 
   componentWillMount() {
       programas.get(this.props.params.id).then(function(program){
-          this.setState({program});
+          this.setState({program},function(){ $('input').change() });
       }.bind(this)) 
       .catch(function(err){
           Materialize.toast("Hubo un error en la consulta del programa",3000,"red");
@@ -80,12 +84,12 @@ class EditProgram extends Component {
   render() {
     console.log(this.state);
     return (
-      <div className="row">
+      <div className="row" style={HACKY_FIX}>
         <div className="col s12">
           <h4>Datos del programa</h4>
         </div>
         <div className="input-field col s12">
-          <input id="first_name" type="text" className="validate" value={this.state.program.nombre} onChange={this.changeProgram.bind(this,'nombre')}/>
+          <input id="first_name" type="text" className="" value={this.state.program.nombre} onChange={this.changeProgram.bind(this,'nombre')}/>
           <label for="first_name">Nombre del programa</label>
         </div>
         <div className="col s12">

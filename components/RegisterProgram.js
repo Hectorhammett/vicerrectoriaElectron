@@ -3,6 +3,10 @@ let PouchDB = require("pouchdb");
 let programas = new PouchDB("programas");
 let Validator = require("validatorjs");
 
+const HACKY_FIX = {
+  overflowX: "hidden"
+}
+
 class RegisterProgram extends Component {
   constructor(){
     super();
@@ -80,12 +84,12 @@ class RegisterProgram extends Component {
 
   render() {
     return (
-      <div className="row">
+      <div className="row" style={HACKY_FIX}>
         <div className="col s12">
           <h4>Datos del programa</h4>
         </div>
         <div className="input-field col s12">
-          <input id="first_name" type="text" className="validate" value={this.state.program.nombre} onChange={this.changeProgram.bind(this,'nombre')}/>
+          <input id="first_name" type="text" className="" value={this.state.program.nombre} onChange={this.changeProgram.bind(this,'nombre')}/>
           <label for="first_name">Nombre del programa</label>
         </div>
         <div className="col s12">

@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Materia from './Materia';
+let Validator = require("validatorjs");
 
 class AddSemester extends Component {
     constructor(){
@@ -54,8 +55,27 @@ class AddSemester extends Component {
 
     storeSemester(){
         let {subjects} = this.state;
-        this.props.returnSubjects(subjects);
-        $(this.refs.semesterModal).modal('close');
+        if(subjects.length <= 0){
+            Materialize.toast("El Semestre/Cuatrimestre debe de tener al menos una materia.",3000,"red");
+        }
+        else{
+            if(!this.validateSubjects(subjects)){
+                Materialize.toast("Las materias registradas deben de tener un nombre.",3000,"red");
+            }
+            else{
+                this.props.returnSubjects(subjects);
+                $(this.refs.semesterModal).modal('close');
+            }
+        }
+    }
+
+    validateSubjects(subjects){
+        let result = true;
+        subjects.map(function(subject){
+            if(subject.nombre === "")
+                result = false;
+        })
+        return result;
     }
 
     render() {
@@ -69,7 +89,7 @@ class AddSemester extends Component {
                     </div>
                 </div>
                 <div className="modal-footer">
-                    <button className="modal-action modal-close waves-effect waves-green btn-flat" onClick={this.storeSemester.bind(this)}>Guardar</button>
+                    <button className="modal-action waves-effect waves-green btn-flat" onClick={this.storeSemester.bind(this)}>Guardar</button>
                     <button className=" modal-action modal-close waves-effect waves-green btn-flat">Cancelar</button>
                 </div>
             </div>
