@@ -15,6 +15,9 @@ var PouchDB = require('pouchdb');
 var estudiantes = new PouchDB('estudiantes');
 let programas = new PouchDB("programas");
 let _ = require("lodash");
+let {dialog} = require('electron').remote;
+let fs = window.require('fs');
+let blobStram = require('blob-stream');
 
 window.programas = programas;
 window.estudiantes = estudiantes;
@@ -780,6 +783,7 @@ class Overview extends Component {
             return null;
         return <div className="row">
             <div className="col s12">
+                <a className="waves-effect waves-light btn" onClick={this.exportToPdf.bind(this)}><i className="material-icons right">save</i>Exportar Reporte</a>
                 <a className="waves-effect waves-light btn red" onClick={this.deleteStudentFromProgram.bind(this)}><i className="material-icons right">delete</i>ELIMINAR ALUMNO DEL PROGRAMA</a>
             </div>
         </div>
@@ -836,6 +840,108 @@ class Overview extends Component {
     editStudent(){
         let {alumno} = this.state;
         this.props.history.push("editStudent/" + alumno._id);
+    }
+
+    addRowToPdf(doc,header,text){
+        doc.fontSize(15).text(header + ":");
+        doc.fontSize(13).text(text);
+        doc.moveDown();
+    }
+
+    exportToPdf(){
+        //Dont stress out Hector, this is loaded for the web version through pdfkit.js in the js folders and the index.html.
+        let alumno = this.state.alumnoEnPrograma;
+        let {programa} = this.state;
+        let doc = new PDFDocument();
+        let stream = doc.pipe( blobStram() );
+        doc.image('images/seal.png', 15, 15, {width: 75})
+        doc.fontSize(22).text("Universidad Autónoma de Baja California",55,45,{width: 570, align: "center"});
+        doc.fontSize(13).text("Sistema de seguimiento a la trayectoria de estudiantes de posgrado",55,65,{width: 570, align: "center"});
+        
+        //Información de alumno
+        doc.fontSize(20).text("Información personal del Alumno:",15,135);
+        this.addRowToPdf(doc,"Matrícula",alumno.matricula);
+        this.addRowToPdf(doc,"Nombre del Alumno",`${alumno.nombre} ${alumno.paterno} ${alumno.materno}`);
+        this.addRowToPdf(doc,"Correo",alumno.email);
+        this.addRowToPdf(doc,"Teléfono",alumno.telefono);
+        doc.moveDown();
+
+        //Programa
+        doc.fontSize(20).text("Programa");
+        this.addRowToPdf(doc,"Nombre del Programa",programa.nombre);
+        doc.moveDown();
+
+        //Semestres
+        let unidades = programa.formato === "Semestral" ? "Semestres" : "Cuatrimestres";
+        doc.fontSize(20).text(unidades);
+        alumno.semestres.map((semestre,index) => {
+            let unidad = programa.formato === "Semestral" ? "Semestre" : "Cuatrimestre"
+            doc.fontSize(18).text(unidad + " " + (index + 1));
+            let initialX = doc.x;
+            let initialY = doc.y;
+            semestre.map((materia,index) => {
+                doc.x = (190 * (index%3)) + 15;
+                if(index > 0 && index%3 === 0){
+                    doc.moveDown();
+                    doc.moveDown();
+                    doc.moveDown();
+                    initialY = doc.y;
+                }
+                doc.fontSize(15).text(materia.nombre,{width:190});
+                doc.fontSize(13).text(materia.calificacion === undefined ? "Sin Calificación" : `Calificación: ${materia.calificacion}`,{width: 190});
+                doc.y = initialY;
+            })
+            doc.moveDown();
+            doc.moveDown();
+            doc.moveDown();
+            doc.moveDown();
+            doc.x = initialX;
+        })
+
+        //Trabajo
+        doc.fontSize(20).text("Trabajo");
+        this.addRowToPdf(doc,"Nombre del trabajo",alumno.nombreTrabajo);
+        this.addRowToPdf(doc,"Tipo de trabajo",alumno.nombreTrabajo);
+        this.addRowToPdf(doc,"Tutor",alumno.nombreTrabajo);
+        this.addRowToPdf(doc,"Línea de generación y ampliación del conocimiento",alumno.nombreTrabajo);
+
+        //movilidad 
+        doc.fontSize(20).text("Movilidad Estudiantil dentro del Programa");
+        if(alumno.movilidad === undefined || alumno.movilidad.length === 0){
+            doc.fontSize(13).text("El alumno no tiene movilidades estudiantiles registradas.");
+            doc.moveDown(); 
+        }
+        else{
+            alumno.movilidades.map((movility) => {
+                this.addRowToPdf(doc,"Nombre",movility.nombre);
+                this.addRowToPdf(doc,"Fecha de Inicio",movility.fechaInicio);
+                this.addRowToPdf(doc,"Fecha de Finalización",movility.fechaFinal);
+                this.addRowToPdf(doc,"Resultado",movility.resultado);
+                doc.moveDown();            
+            });
+        }
+
+        //Trabajos de Productividad
+        doc.fontSize(20).text("Trabajos de productividad dentro del Programa");
+        if(alumno.productividad === undefined || alumno.productividad.length === 0){
+            doc.fontSize(13).text("El alumno no tiene trabajos de productividad registrados.");
+            doc.moveDown();
+        }
+        else{
+            alumno.productividad.map((trabajo) => {
+                this.addRowToPdf(doc,"Nombre",trabajo.nombre);
+                this.addRowToPdf(doc,"Fecha",trabajo.fecha);
+                this.addRowToPdf(doc,"Categoría",trabajo.categoria);
+                this.addRowToPdf(doc,"Tipo",trabajo.tipo);
+                doc.moveDown(); 
+            })
+        }
+
+        doc.end();
+        stream.on('finish',function(){
+            let url = this.toBlobURL('application/pdf')
+            window.location = url;
+        });
     }
 
     render() {

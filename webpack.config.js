@@ -18,6 +18,9 @@ module.exports = {
       }
     ]
   },
+  node: {
+    fs: "empty"
+  },
   output: {
     path: __dirname + "/js/",
     filename: "app.min.js"
@@ -27,4 +30,17 @@ module.exports = {
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.optimize.UglifyJsPlugin({ mangle: false, sourcemap: false }),
   ],
+  externals: [
+    (function () {
+      var IGNORES = [
+        'electron'
+      ];
+      return function (context, request, callback) {
+        if (IGNORES.indexOf(request) >= 0) {
+          return callback(null, "require('" + request + "')");
+        }
+        return callback();
+      };
+    })()
+  ]
 };
